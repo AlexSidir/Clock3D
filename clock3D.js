@@ -60,7 +60,9 @@ const generalDefaults = {
   lightPositionY: 1,
   lightPositionZ: 1,
   imageFrontSide: "images/germany.jpg",
-  imageBackSide: "images/greece.jpg"
+  imageBackSide: "images/greece.jpg",
+  near: 0.1,
+  far: 1000
 };
 
 const colors = {
@@ -76,14 +78,14 @@ const colors = {
   background: "rgb(153, 255, 204)"
 };
 
-const canvas = document.getElementById("mycanvas");
+const canvas = document.getElementById("canvas");
 const renderer = new THREE.WebGLRenderer({canvas:canvas});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(colors.background);
 
 // create scene and camera
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, generalDefaults.near, generalDefaults.far);
 camera.position.set( generalDefaults.cameraPositionX, generalDefaults.cameraPositionY, generalDefaults.cameraPositionZ);
 
 //Add light
@@ -138,8 +140,8 @@ for(let i=0; i<clockDefaults.allTicks; i++) {
   else createTicks(cylinderBackSide, clockDefaults.tickWidth, clockDefaults.smallTickHeight, colors.black, ((2*Math.PI)/60) * i, -clockDefaults.backSideOffset);
 }
 
-function createTicks(cylinder, tickWidth, height, color, angle, side) {
-  const lineGeometry = new THREE.BoxGeometry(tickWidth, height, clockDefaults.ticksWidthSegments);
+function createTicks(cylinder, tickWidth, tickHeight, color, angle, side) {
+  const lineGeometry = new THREE.BoxGeometry(tickWidth, tickHeight, clockDefaults.ticksWidthSegments);
   const tick = new THREE.Mesh(lineGeometry, new THREE.MeshPhongMaterial({color: color}));
   tick.position.z = Math.cos(angle)*( clockDefaults.radius - 0.6);
   tick.position.y = side;
@@ -222,7 +224,7 @@ function onDocumentKeyDown(event) {
   }
 }
 
-function render(time) {
+function render() {
   requestAnimationFrame(render);
 
   const date = new Date();
