@@ -1,191 +1,254 @@
 const clockDefaults = {
   radius: 10,
   height: 1,
+  frame:1,
   radialSegments: 60,
-  frame:1
+  greeceOffset: 1,
+  cylinderHeight: 0.1,
+  cylinderOffset: 1.5,
+  cylinderRadiusTop: 0.4,
+  cylinderRadiusBottom: 0.7,
+  blobHeightOffset: 1,
+  twelvePosition : 30,
+  twelvePositionHeight: 2,
+  mediumTickHeight: 1,
+  smallTickHeight:0.5,
+  allTicks: 60,
+  tickWidth: 0.2,
+  ticksWidthSegments: 0.09,
+  blobOffset: 0.4,
+  frontSideOffset: 0.5,
+  backSideOffset: 0.1
+};
+
+const handDefaults = {
+  hourHandRadius: 5,
+  minutesHandRadius: 5,
+  secondsHandRadius: 4.5,
+  handsWidthSegments: 16,
+  handsHeightSegments: 16,
+  hoursHandPosition: 1.2,
+  minutesHandPosition: 0.8,
+  secondsHandPosition: 1.5,
+  hoursHandScaleX: 0.04,
+  hoursHandScaleY: 0.04,
+  hoursHandScaleZ: 0.6,
+  minutesHandScaleX: 0.04,
+  minutesHandScaleY: 0.04,
+  minutesHandScaleZ: 1,
+  secondsHandScaleX: 0.02,
+  secondsHandScaleY: 0.02,
+  secondsHandScaleZ: 1.4,
+  hoursHandTranslationX: 0,
+  hoursHandTranslationY: 0,
+  hoursHandTranslationZ: 2,
+  minutesHandTranslationX: 0,
+  minutesHandTranslationY: 0,
+  minutesHandTranslationZ: 3,
+  secondsHandTranslationX: 0,
+  secondsHandTranslationY: 0,
+  secondsHandTranslationZ: 3
+};
+
+const generalDefaults = {
+  resetKey: 82,
+  cameraRotateSpeed: 2,
+  cameraPositionX: 0.1,
+  cameraPositionY: 15,
+  cameraPositionZ: 0,
+  lightPositionX: 1.5,
+  lightPositionY: 1,
+  lightPositionZ: 1,
+  imageFrontSide: "images/germany.jpg",
+  imageBackSide: "images/greece.jpg"
+};
+
+const colors = {
+  yellow: 0xffff00,
+  cyan: 0x00f5f0,
+  green: 0x0f5f00,
+  blackRock: 0x2D303D,
+  black: "black",
+  red: "red",
+  charcoal: 0x444444,
+  suvaGrey: 0x909090,
+  white: 0xffffff,
+  background: "rgb(153, 255, 204)"
 };
 
 const canvas = document.getElementById("mycanvas");
 const renderer = new THREE.WebGLRenderer({canvas:canvas});
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor('rgb(178,34,34)');
+renderer.setClearColor(colors.background);
+
 // create scene and camera
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight,
-  0.1, 1000);
-  camera.position.set( 0.1, 20, 0);
+const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set( generalDefaults.cameraPositionX, generalDefaults.cameraPositionY, generalDefaults.cameraPositionZ);
 
-  //Add light
-  const ambientLight = new THREE.AmbientLight(0x909090);
-  scene.add(ambientLight);
-  const light = new THREE.DirectionalLight(0x444444);
-  light.position.set( 1.5,1,1 );
-  scene.add(light);
+//Add light
+const ambientLight = new THREE.AmbientLight(colors.suvaGrey);
+scene.add(ambientLight);
+const light = new THREE.DirectionalLight(colors.charcoal);
+light.position.set( generalDefaults.lightPositionX, generalDefaults.lightPositionY, generalDefaults.lightPositionZ);
+scene.add(light);
 
-  const txtLoader = new THREE.TextureLoader();
+const txtLoader = new THREE.TextureLoader();
 
-  let geometryFrontSide = new THREE.CylinderGeometry( clockDefaults.radius-1, clockDefaults.radius, clockDefaults.height/2, clockDefaults.radialSegments );
-  const frontSideTexture = txtLoader.load("germany.jpg");
-  let materialFrontSide = new THREE.MeshBasicMaterial( {color: 0xffffff, map:frontSideTexture, side: THREE.FrontSide} );
-  let cylinderFrontSide = new THREE.Mesh( geometryFrontSide, materialFrontSide );
-  cylinderFrontSide.position.y += clockDefaults.height/3;
-  cylinderFrontSide.rotation.set( 0, Math.PI,0);
-  scene.add( cylinderFrontSide );
+let geometryFrontSide = new THREE.CylinderGeometry( clockDefaults.radius - clockDefaults.cylinderOffset, clockDefaults.radius, clockDefaults.cylinderHeight, clockDefaults.radialSegments );
+const frontSideTexture = txtLoader.load(generalDefaults.imageFrontSide);
+let materialFrontSide = new THREE.MeshBasicMaterial( {color: colors.white, map:frontSideTexture, side: THREE.FrontSide} );
+let cylinderFrontSide = new THREE.Mesh( geometryFrontSide, materialFrontSide );
+cylinderFrontSide.position.y += clockDefaults.cylinderHeight;
+cylinderFrontSide.rotation.set( 0, Math.PI, 0);
+scene.add( cylinderFrontSide );
 
-  let geometryBackSide = new THREE.CylinderGeometry( clockDefaults.radius-1, clockDefaults.radius, clockDefaults.height/2, clockDefaults.radialSegments );
-  const backSideTexture = txtLoader.load("greece.jpg");
-  let materialBackSide = new THREE.MeshBasicMaterial( {color: 0xffffff, map:backSideTexture, side: THREE.BackSide} );
-  let cylinderBackSide = new THREE.Mesh( geometryBackSide, materialBackSide );
-  cylinderBackSide.position.y -= clockDefaults.height/3;
-  cylinderBackSide.rotation.set(0 , Math.PI/2,0);
-  scene.add( cylinderBackSide );
+let geometryBackSide = new THREE.CylinderGeometry( clockDefaults.radius - clockDefaults.cylinderOffset, clockDefaults.radius, clockDefaults.cylinderHeight, clockDefaults.radialSegments );
+const backSideTexture = txtLoader.load(generalDefaults.imageBackSide);
+let materialBackSide = new THREE.MeshBasicMaterial( {color: colors.white, map:backSideTexture, side: THREE.BackSide} );
+let cylinderBackSide = new THREE.Mesh( geometryBackSide, materialBackSide );
+cylinderBackSide.position.y -= clockDefaults.cylinderHeight;
+cylinderBackSide.rotation.set( 0, Math.PI/2, 0);
+scene.add( cylinderBackSide );
 
-  let geometryBlobFrontSide = new THREE.CylinderGeometry( 0.4, 0.7, clockDefaults.height + 1, clockDefaults.radialSegments );
-  let materialBlobFrontSide = new THREE.MeshBasicMaterial( {color: 0x444444} );
-  let blobFrontSide = new THREE.Mesh( geometryBlobFrontSide, materialBlobFrontSide );
-  blobFrontSide.position.y += clockDefaults.height - 0.4;
-  cylinderFrontSide.add( blobFrontSide );
+//Blobs
+let geometryBlobFrontSide = new THREE.CylinderGeometry( clockDefaults.cylinderRadiusTop, clockDefaults.cylinderRadiusBottom, clockDefaults.height + clockDefaults.blobHeightOffset, clockDefaults.radialSegments );
+let materialBlobFrontSide = new THREE.MeshBasicMaterial( {color: colors.charcoal} );
+let blobFrontSide = new THREE.Mesh( geometryBlobFrontSide, materialBlobFrontSide );
+blobFrontSide.position.y += clockDefaults.height - clockDefaults.blobOffset;
+cylinderFrontSide.add( blobFrontSide );
 
-  let geometryBlobBackSide = new THREE.CylinderGeometry( 0.4, 0.7, clockDefaults.height + 1, clockDefaults.radialSegments );
-  let materialBlobBackSide = new THREE.MeshBasicMaterial( {color: 0x444444} );
-  let blobBackSide = new THREE.Mesh( geometryBlobBackSide, materialBlobBackSide );
-  blobBackSide.position.y -= clockDefaults.height - 0.4;
-  blobBackSide.rotation.set(0, 0, Math.PI);
-  cylinderBackSide.add( blobBackSide );
+let geometryBlobBackSide = new THREE.CylinderGeometry( clockDefaults.cylinderRadiusTop, clockDefaults.cylinderRadiusBottom, clockDefaults.height + clockDefaults.blobHeightOffset, clockDefaults.radialSegments );
+let materialBlobBackSide = new THREE.MeshBasicMaterial( {color: colors.charcoal} );
+let blobBackSide = new THREE.Mesh( geometryBlobBackSide, materialBlobBackSide );
+blobBackSide.position.y -= clockDefaults.height - clockDefaults.blobOffset;
+blobBackSide.rotation.set(0, 0, Math.PI);
+cylinderBackSide.add( blobBackSide );
 
-  for(let i=0; i<60; i++){
-    const frontAngle = ((2*Math.PI)/60) * i - Math.PI/2;//We subtract pi/2 in order to correct where the 12 o'clock is,
-                                                        // because of the rotation needed for the texture image to be correct
-    const frontSide =  1 / 2;
+for(let i=0; i<clockDefaults.allTicks; i++) {
+  //In the following lines, we subtract pi/2 in order to correct where the 12 o'clock is,
+  // because of the rotation needed for the texture image to be correct
+  if(i === clockDefaults.twelvePosition) createTicks(cylinderFrontSide, clockDefaults.tickWidth, clockDefaults.twelvePositionHeight, colors.red, ((2*Math.PI)/60) * i - Math.PI/2, clockDefaults.frontSideOffset);
+  else if(i%5 === 0) createTicks(cylinderFrontSide, clockDefaults.tickWidth, clockDefaults.mediumTickHeight, colors.black, ((2*Math.PI)/60) * i - Math.PI/2, clockDefaults.frontSideOffset);
+  else createTicks(cylinderFrontSide, clockDefaults.tickWidth, clockDefaults.smallTickHeight, colors.black, ((2*Math.PI)/60) * i - Math.PI/2, clockDefaults.frontSideOffset);
+}
+for(let i=0; i<clockDefaults.allTicks; i++) {
+  if(i === clockDefaults.twelvePosition) createTicks(cylinderBackSide, clockDefaults.tickWidth, clockDefaults.twelvePositionHeight, colors.red, ((2*Math.PI)/60) * i, -clockDefaults.backSideOffset);
+  else if(i%5 === 0) createTicks(cylinderBackSide, clockDefaults.tickWidth, clockDefaults.mediumTickHeight, colors.black, ((2*Math.PI)/60) * i, -clockDefaults.backSideOffset);
+  else createTicks(cylinderBackSide, clockDefaults.tickWidth, clockDefaults.smallTickHeight, colors.black, ((2*Math.PI)/60) * i, -clockDefaults.backSideOffset);
+}
 
-    if(i === 30) createTicks(cylinderFrontSide, 0.2, 1.5, "red", frontAngle, frontSide);
-    else if(i%5 === 0) createTicks(cylinderFrontSide, 0.2, 1, "black", frontAngle, frontSide);
-    else createTicks(cylinderFrontSide, 0.2, 0.5, "black", frontAngle, frontSide);
+function createTicks(cylinder, tickWidth, height, color, angle, side) {
+  const lineGeometry = new THREE.BoxGeometry(tickWidth, height, clockDefaults.ticksWidthSegments);
+  const tick = new THREE.Mesh(lineGeometry, new THREE.MeshPhongMaterial({color: color}));
+  tick.position.z = Math.cos(angle)*( clockDefaults.radius - 0.6);
+  tick.position.y = side;
+  tick.position.x = Math.sin(angle)*( clockDefaults.radius - 0.6);
+  tick.rotateY(angle);
+  tick.rotateX(Math.PI/2);
+  cylinder.add(tick);
+}
+
+//Front Side
+let geometryHoursHandFrontSide = new THREE.SphereGeometry( handDefaults.hourHandRadius, handDefaults.handsWidthSegments, handDefaults.handsHeightSegments);
+geometryHoursHandFrontSide.scale( handDefaults.hoursHandScaleX, handDefaults.hoursHandScaleY, handDefaults.hoursHandScaleZ);
+geometryHoursHandFrontSide.applyMatrix( new THREE.Matrix4().makeTranslation( handDefaults.hoursHandTranslationX, handDefaults.hoursHandTranslationY, handDefaults.hoursHandTranslationZ));
+let materialHoursHandFrontSide = new THREE.MeshBasicMaterial( {color: colors.green} );
+let hourHandFrontSide = new THREE.Mesh( geometryHoursHandFrontSide, materialHoursHandFrontSide );
+hourHandFrontSide.position.y = handDefaults.hoursHandPosition;
+scene.add( hourHandFrontSide );
+
+let geometryMinutesHandFrontSide = new THREE.SphereGeometry( handDefaults.minutesHandRadius, handDefaults.handsWidthSegments, handDefaults.handsHeightSegments );
+geometryMinutesHandFrontSide.scale( handDefaults.minutesHandScaleX, handDefaults.minutesHandScaleY, handDefaults.minutesHandScaleZ);
+geometryMinutesHandFrontSide.applyMatrix( new THREE.Matrix4().makeTranslation( handDefaults.minutesHandTranslationX, handDefaults.minutesHandTranslationY, handDefaults.minutesHandTranslationZ));
+let materialMinutesHandFrontSide = new THREE.MeshBasicMaterial( {color: colors.yellow} );
+let minutesHandFrontSide = new THREE.Mesh( geometryMinutesHandFrontSide, materialMinutesHandFrontSide );
+minutesHandFrontSide.position.y = handDefaults.minutesHandPosition;
+scene.add( minutesHandFrontSide );
+
+let geometrySecondsHandFrontSide = new THREE.SphereGeometry( handDefaults.secondsHandRadius, handDefaults.handsWidthSegments, handDefaults.handsHeightSegments );
+geometrySecondsHandFrontSide.scale( handDefaults.secondsHandScaleX, handDefaults.secondsHandScaleY, handDefaults.secondsHandScaleZ);
+geometrySecondsHandFrontSide.applyMatrix( new THREE.Matrix4().makeTranslation( handDefaults.secondsHandTranslationX, handDefaults.secondsHandTranslationY, handDefaults.secondsHandTranslationZ));
+let materialSecondsHandFrontSide = new THREE.MeshBasicMaterial( {color: colors.cyan} );
+let secondsHandFrontSide = new THREE.Mesh( geometrySecondsHandFrontSide, materialSecondsHandFrontSide );
+secondsHandFrontSide.position.y = handDefaults.secondsHandPosition;
+scene.add( secondsHandFrontSide );
+
+//Back Side
+let geometryHoursHandBackSide = new THREE.SphereGeometry(handDefaults.hourHandRadius, handDefaults.handsWidthSegments, handDefaults.handsHeightSegments);
+geometryHoursHandBackSide.scale( handDefaults.hoursHandScaleX, handDefaults.hoursHandScaleY, handDefaults.hoursHandScaleZ);
+geometryHoursHandBackSide.applyMatrix( new THREE.Matrix4().makeTranslation( handDefaults.hoursHandTranslationX, handDefaults.hoursHandTranslationY, handDefaults.hoursHandTranslationZ));
+let materialHoursHandBackSide = new THREE.MeshBasicMaterial( {color: colors.green} );
+let hourHandBackSide = new THREE.Mesh( geometryHoursHandBackSide, materialHoursHandBackSide );
+hourHandBackSide.position.y = -handDefaults.hoursHandPosition;
+scene.add( hourHandBackSide );
+
+let geometryMinutesHandBackSide = new THREE.SphereGeometry( handDefaults.minutesHandRadius, handDefaults.handsWidthSegments, handDefaults.handsHeightSegments );
+geometryMinutesHandBackSide.scale( handDefaults.minutesHandScaleX, handDefaults.minutesHandScaleY, handDefaults.minutesHandScaleZ);
+geometryMinutesHandBackSide.applyMatrix( new THREE.Matrix4().makeTranslation( handDefaults.minutesHandTranslationX, handDefaults.minutesHandTranslationY, handDefaults.minutesHandTranslationZ));
+let materialMinutesHandBackSide = new THREE.MeshBasicMaterial( {color: colors.yellow} );
+let minutesHandBackSide = new THREE.Mesh( geometryMinutesHandBackSide, materialMinutesHandBackSide );
+minutesHandBackSide.position.y = -handDefaults.minutesHandPosition;
+scene.add( minutesHandBackSide );
+
+let geometrySecondsHandBackSide = new THREE.SphereGeometry( handDefaults.secondsHandRadius, handDefaults.handsWidthSegments, handDefaults.handsHeightSegments );
+geometrySecondsHandBackSide.scale( handDefaults.secondsHandScaleX, handDefaults.secondsHandScaleY, handDefaults.secondsHandScaleZ);
+geometrySecondsHandBackSide.applyMatrix( new THREE.Matrix4().makeTranslation( handDefaults.secondsHandTranslationX, handDefaults.secondsHandTranslationY, handDefaults.secondsHandTranslationZ));
+let materialSecondsHandBackSide = new THREE.MeshBasicMaterial( {color: colors.cyan} );
+let secondsHandBackSide = new THREE.Mesh( geometrySecondsHandBackSide, materialSecondsHandBackSide );
+secondsHandBackSide.position.y = -handDefaults.secondsHandPosition;
+scene.add( secondsHandBackSide );
+
+//Outter Ring
+let points = [];
+points.push(new THREE.Vector2(clockDefaults.radius, clockDefaults.height/2 + clockDefaults.frame));
+points.push(new THREE.Vector2(clockDefaults.radius , clockDefaults.height/2 - clockDefaults.frame));
+points.push(new THREE.Vector2(clockDefaults.radius + clockDefaults.frame , clockDefaults.height/2 - clockDefaults.frame));
+points.push(new THREE.Vector2(clockDefaults.radius + clockDefaults.frame , clockDefaults.height/2 + clockDefaults.frame));
+points.push(new THREE.Vector2(clockDefaults.radius, clockDefaults.height/2 + clockDefaults.frame));
+let mesh = new THREE.Mesh( new THREE.LatheGeometry( points, 60 ), new THREE.MeshLambertMaterial( { color: colors.blackRock,  flatShading: THREE.FlatShading } ));
+mesh.doubleSided = true;
+scene.add( mesh );
+
+const controls = new THREE.TrackballControls( camera, canvas );
+controls.rotateSpeed = generalDefaults.cameraRotateSpeed;
+
+document.addEventListener("keydown", onDocumentKeyDown, false);
+function onDocumentKeyDown(event) {
+  let keyCode = event.which;
+
+  if (keyCode == generalDefaults.resetKey) {
+    controls.reset();
   }
-  for(let i=0; i<60; i++){
-    const backAngle = ((2*Math.PI)/60) * i;
-    const backSide =  - 1 / 2;
+}
 
-    if(i === 30) createTicks(cylinderBackSide, 0.2, 1.5, "red", backAngle, backSide);
-    else if(i%5 === 0) createTicks(cylinderBackSide, 0.2, 1, "black", backAngle, backSide);
-    else createTicks(cylinderBackSide, 0.2, 0.5, "black", backAngle, backSide);
-  }
+function render(time) {
+  requestAnimationFrame(render);
 
-  function createTicks(container, width, height, color, angle, side){
+  const date = new Date();
 
-    const lineGeometry = new THREE.BoxGeometry(width, height, 0.08);
-    const line = new THREE.Mesh(lineGeometry, new THREE.MeshPhongMaterial({color: color}));
-    line.position.z = Math.cos(angle)*( 10 - 0.6);
-    line.position.y = side;
-    line.position.x = Math.sin(angle)*( 10 - 0.6);
-    line.rotateY(angle);
-    line.rotateX(Math.PI/2);
-    container.add(line);
-  }
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
 
-  let geometryHoursHandFrontSide = new THREE.SphereGeometry( 5, 16, 16 );
-  geometryHoursHandFrontSide.scale(0.04,0.04,1);
-  geometryHoursHandFrontSide.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, 3) );
-  let materialHoursHandFrontSide = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-  let hourHandFrontSide = new THREE.Mesh( geometryHoursHandFrontSide, materialHoursHandFrontSide );
-  hourHandFrontSide.position.y = 0.8;
-  //hourHandFrontSide.rotation.y = Math.PI /2;
-  //hourHandFrontSide.position.z = 3;
-  scene.add( hourHandFrontSide );
+  let handSecondsFrontSide = ((2*Math.PI)/60) * seconds + Math.PI/2;
+  let handMinutesFrontSide = ((2*Math.PI)/60) * minutes + Math.PI/2;
+  let handHoursFrontSide = ((2*Math.PI)/12) * hours + Math.PI/2 + (((6 * minutes / 12 )* Math.PI) / 180);
 
-  let geometryMinutesHandFrontSide = new THREE.SphereGeometry( 5, 16, 16 );
-  geometryMinutesHandFrontSide.scale(0.04,0.04,0.6);
-  geometryMinutesHandFrontSide.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, 2) );
-  let materialMinutesHandFrontSide = new THREE.MeshBasicMaterial( {color: 0x0f5f00} );
-  let minutesHandFrontSide = new THREE.Mesh( geometryMinutesHandFrontSide, materialMinutesHandFrontSide );
-  minutesHandFrontSide.position.y = 1.2;
-  //minutesHandFrontSide.rotation.y = Math.PI /2;
-  //minutesHandFrontSide.position.z = 2;
-  scene.add( minutesHandFrontSide );
+  secondsHandFrontSide.rotation.y = -handSecondsFrontSide;
+  hourHandFrontSide.rotation.y = -handHoursFrontSide;
+  minutesHandFrontSide.rotation.y = -handMinutesFrontSide;
 
-  let geometrySecondsHandFrontSide = new THREE.SphereGeometry( 4.5, 16, 16 );
-  geometrySecondsHandFrontSide.scale(0.02,0.02,1.4);
-  geometrySecondsHandFrontSide.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, 3) );
-  let materialSecondsHandFrontSide = new THREE.MeshBasicMaterial( {color: 0x00f5f0} );
-  let secondsHandFrontSide = new THREE.Mesh( geometrySecondsHandFrontSide, materialSecondsHandFrontSide );
-  secondsHandFrontSide.position.y = 1.5;
-  //secondsHandFrontSide.rotation.x = Math.PI /2;
-//  secondsHandFrontSide.position.z = 0;
-  scene.add( secondsHandFrontSide );
+  let handSecondsBackSide = ((2*Math.PI)/60) * seconds + Math.PI/2 + Math.PI;
+  let handMinutesBackSide = ((2*Math.PI)/60) * minutes + Math.PI/2  + Math.PI;
+  let handHoursBackSide = ((2*Math.PI)/12) * (hours + clockDefaults.greeceOffset ) + (((6 * minutes / 12 )* Math.PI) / 180) - Math.PI/2;
 
-  let geometryHoursHandBackSide = new THREE.SphereGeometry( 5, 16, 16 );
-  geometryHoursHandBackSide.scale(0.04,0.04,1);
-  geometryHoursHandBackSide.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, 3) );
-  let materialHoursHandBackSide = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-  let hourHandBackSide = new THREE.Mesh( geometryHoursHandBackSide, materialHoursHandBackSide );
-  hourHandBackSide.position.y = -0.8;
-  //hourHandBackSide.rotation.y = Math.PI /2;
-  //hourHandBackSide.position.z = 3;
-  scene.add( hourHandBackSide );
+  secondsHandBackSide.rotation.y = handSecondsBackSide;
+  hourHandBackSide.rotation.y = handHoursBackSide;
+  minutesHandBackSide.rotation.y = handMinutesBackSide;
 
-  let geometryMinutesHandBackSide = new THREE.SphereGeometry( 5, 16, 16 );
-  geometryMinutesHandBackSide.scale(0.04,0.04,0.6);
-  geometryMinutesHandBackSide.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, 2) );
-  let materialMinutesHandBackSide = new THREE.MeshBasicMaterial( {color: 0x0f5f00} );
-  let minutesHandBackSide = new THREE.Mesh( geometryMinutesHandBackSide, materialMinutesHandBackSide );
-  minutesHandBackSide.position.y = -1.2;
-  //minutesHandBackSide.rotation.y = Math.PI /2;
-  //minutesHandBackSide.position.z = 2;
-  scene.add( minutesHandBackSide );
+  controls.update();
+  renderer.render(scene, camera);
+}
 
-  let geometrySecondsHandBackSide = new THREE.SphereGeometry( 4.5, 16, 16 );
-  geometrySecondsHandBackSide.scale(0.02,0.02,1.4);
-  geometrySecondsHandBackSide.applyMatrix( new THREE.Matrix4().makeTranslation(0, 0, 3) );
-  let materialSecondsHandBackSide = new THREE.MeshBasicMaterial( {color: 0x00f5f0} );
-  let secondsHandBackSide = new THREE.Mesh( geometrySecondsHandBackSide, materialSecondsHandBackSide );
-  secondsHandBackSide.position.y = -1.5;
-  //secondsHandBackSide.rotation.y = Math.PI /2;
-  //secondsHandBackSide.position.z = 3;
-  scene.add( secondsHandBackSide );
-
-  //Outter Ring
-  let points = [];
-  points.push(new THREE.Vector2(clockDefaults.radius, clockDefaults.height/2 + clockDefaults.frame));
-  points.push(new THREE.Vector2(clockDefaults.radius , clockDefaults.height/2 - clockDefaults.frame));
-  points.push(new THREE.Vector2(clockDefaults.radius + clockDefaults.frame , clockDefaults.height/2 - clockDefaults.frame));
-  points.push(new THREE.Vector2(clockDefaults.radius + clockDefaults.frame , clockDefaults.height/2 + clockDefaults.frame));
-  points.push(new THREE.Vector2(clockDefaults.radius, clockDefaults.height/2 + clockDefaults.frame));
-  let mesh = new THREE.Mesh( new THREE.LatheGeometry( points, 60 ), new THREE.MeshLambertMaterial( { color: 0x2D303D,  shading: THREE.FlatShading } ));
-  mesh.position.y = 0;
-  mesh.doubleSided = true;
-  scene.add( mesh );
-
-  const controls = new THREE.TrackballControls( camera, canvas );
-  controls.rotateSpeed = 2;
-
-  document.addEventListener("keydown", onDocumentKeyDown, false);
-  function onDocumentKeyDown(event) {
-    let keyCode = event.which;
-
-    if (keyCode == 82) {
-      controls.reset();
-    }
-  }
-
-  function render() {
-    requestAnimationFrame(render);
-
-    const date = new Date();
-    const hour = date.getHours()%12;
-    const minute = date.getMinutes();
-    const seconds = date.getSeconds();
-
-    var handSecondR = (6 * seconds * Math.PI) / 180;
-    var handHourR = (30 * (hour > 12 ? hour - 12 : hour) * Math.PI) / 180;
-    var handMinuteR = (6 * minute * Math.PI) / 180;
-
-    secondsHandFrontSide.rotation.y = -handSecondR;
-    hourHandFrontSide.rotation.y = -handHourR;
-    minutesHandFrontSide.rotation.y = -handMinuteR;
-  //  secondsHandBackSide.rotation.y = handSecondR;
-
-    controls.update();
-    renderer.render(scene, camera);
-  }
-
-  render();
+render();
